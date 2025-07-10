@@ -1,11 +1,5 @@
-
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-
-// You'll need to replace these with your actual Supabase credentials
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const Index = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -29,9 +23,24 @@ const Index = () => {
     'https://via.placeholder.com/800x600/FFF0F5/FFFFFF?text=Us+Photo+5'
   ];
 
+  // Supabase configuration with validation
+  const supabaseUrl = 'YOUR_SUPABASE_URL';
+  const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+  
+  // Only create Supabase client if credentials are configured
+  const supabase = (supabaseUrl !== 'YOUR_SUPABASE_URL' && supabaseKey !== 'YOUR_SUPABASE_ANON_KEY') 
+    ? createClient(supabaseUrl, supabaseKey) 
+    : null;
+
   // Track visit on page load
   useEffect(() => {
     const trackVisit = async () => {
+      // Only track if Supabase is configured
+      if (!supabase) {
+        console.log('Supabase not configured - visit tracking disabled');
+        return;
+      }
+
       try {
         const { error } = await supabase
           .from('visits')
@@ -39,7 +48,10 @@ const Index = () => {
             {
               timestamp: new Date().toISOString(),
               page: 'sorry-website',
-              user_agent: navigator.userAgent
+              user_agent: navigator.userAgent,
+              referrer: document.referrer || 'direct',
+              screen_resolution: `${window.screen.width}x${window.screen.height}`,
+              viewport_size: `${window.innerWidth}x${window.innerHeight}`
             }
           ]);
         
@@ -54,7 +66,7 @@ const Index = () => {
     };
 
     trackVisit();
-  }, []);
+  }, [supabase]);
 
   // Slideshow timing logic
   useEffect(() => {

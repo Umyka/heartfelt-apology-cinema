@@ -6,10 +6,17 @@ import { createClient } from '@supabase/supabase-js';
 export const VisitTracker = () => {
   useEffect(() => {
     const trackVisit = async () => {
+      // Supabase configuration with validation
+      const supabaseUrl = 'YOUR_SUPABASE_URL';
+      const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+      
+      // Only proceed if credentials are configured
+      if (supabaseUrl === 'YOUR_SUPABASE_URL' || supabaseKey === 'YOUR_SUPABASE_ANON_KEY') {
+        console.log('Supabase credentials not configured - visit tracking disabled');
+        return;
+      }
+
       try {
-        // You'll need to replace these with your actual Supabase credentials
-        const supabaseUrl = 'YOUR_SUPABASE_URL';
-        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         const { error } = await supabase
